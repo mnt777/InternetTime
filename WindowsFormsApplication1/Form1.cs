@@ -31,7 +31,7 @@ namespace WindowsFormsApplication1
         {
             dt = InternetEntity.getInternetTime();
             this.Location = new Point(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width / 2 - this.Width / 2,
-                                      System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height - this.Height + 20);
+                                      System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height - this.Height+15);
             if (!File.Exists(logFileName))
             {
                 using (var sw = new StreamWriter(logFileName))
@@ -45,13 +45,9 @@ namespace WindowsFormsApplication1
         private void timer1_Tick(object sender, EventArgs e)
         {
             dt = dt.AddSeconds(1);
-            this.label1.Text = dt.ToString();
+            this.textBox1.Text = dt.ToString("MM/dd/yyyy HH:mm");
         }
 
-        private void label1_DoubleClick(object sender, EventArgs e)
-        {
-            Close();
-        }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -66,6 +62,11 @@ namespace WindowsFormsApplication1
                 sw.WriteLine("login:{0}, logout:{1}", loginDate, currentDateTime);
                 //File.Delete(logFileName);
             }
+        }
+
+        private void textBox1_DoubleClick(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }
