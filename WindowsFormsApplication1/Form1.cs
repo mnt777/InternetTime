@@ -19,7 +19,15 @@ namespace WindowsFormsApplication1
             InitializeComponent();
         }
         private DateTime dt = DateTime.Now;
+        private DateTime timeout;
 
+        public string Timeout
+        {
+            get
+            {
+                return timeout.ToString("HH:mm:ss");
+            }
+        }
         public string logFileName
         {
             get
@@ -68,5 +76,22 @@ namespace WindowsFormsApplication1
         {
             Close();
         }
+
+        private void SetAlertTimer(DateTime loginTime)
+        {
+            timeout = loginTime.AddHours(9);
+            var alertTime = loginTime.AddHours(8.5);
+            int spanmillseconds = (alertTime - loginTime).Milliseconds;
+            var aTimer = new System.Timers.Timer(spanmillseconds);
+            aTimer.Elapsed += new System.Timers.ElapsedEventHandler(AlertMsg);
+            aTimer.AutoReset = false;
+            aTimer.Enabled = true;
+        }
+
+        private void AlertMsg(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            MessageBox.Show("Today's work time is {0}", Timeout);
+        }
+
     }
 }

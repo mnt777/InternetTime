@@ -72,7 +72,6 @@
             this.PerformLayout();
 
         }
-
         #endregion
 
         private System.Windows.Forms.Timer timer1;
