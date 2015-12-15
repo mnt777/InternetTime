@@ -18,8 +18,9 @@ namespace WindowsFormsApplication1
         {
             InitializeComponent();
         }
-        private DateTime dt = DateTime.Now;
+        private DateTime currentTime = DateTime.Now;
         private DateTime timeout;
+        private DateTime loginTime;
 
         public string Timeout
         {
@@ -32,34 +33,42 @@ namespace WindowsFormsApplication1
         {
             get
             {
-                return "daily" + dt.ToString("yyyyMMdd");
+                return "daily" + currentTime.ToString("yyyyMMdd");
             }
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            dt = InternetEntity.getInternetTime();
+            currentTime = AdjustTime();
             this.Location = new Point(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width / 2 - this.Width / 2,
                                       System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height - this.Height+15);
             if (!File.Exists(logFileName))
             {
                 using (var sw = new StreamWriter(logFileName))
                 {
-                    sw.WriteLine(dt);
+                    sw.WriteLine(currentTime);
                 }
             }
 
+            using (var sr = new StreamReader(logFileName))
+            {
+                var line = sr.ReadLine();
+                loginTime = DateTime.Parse(line);
+            }
+            SetAlertTimer();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            dt = dt.AddSeconds(1);
-            this.textBox1.Text = dt.ToString("MM/dd/yyyy HH:mm");
-        }
+            currentTime = currentTime.AddSeconds(1);
+            this.textBox1.Text = currentTime.ToString("MM/dd/yyyy HH:mm");
 
+            if (currentTime.Minute == 0) currentTime = AdjustTime();
+
+        }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            var currentDateTime = dt;
+            var currentDateTime = currentTime;
             var loginDate = "";
             using (var sr = new StreamReader(logFileName))
             {
@@ -77,20 +86,32 @@ namespace WindowsFormsApplication1
             Close();
         }
 
-        private void SetAlertTimer(DateTime loginTime)
+        private void SetAlertTimer()
         {
             timeout = loginTime.AddHours(9);
             var alertTime = loginTime.AddHours(8.5);
             int spanmillseconds = (alertTime - loginTime).Milliseconds;
-            var aTimer = new System.Timers.Timer(spanmillseconds);
-            aTimer.Elapsed += new System.Timers.ElapsedEventHandler(AlertMsg);
-            aTimer.AutoReset = false;
-            aTimer.Enabled = true;
+            if (spanmillseconds == 0)
+            {
+                AlertMsg(null, null);
+            }
+            else
+            {
+                var aTimer = new System.Timers.Timer(spanmillseconds);
+                aTimer.Elapsed += new System.Timers.ElapsedEventHandler(AlertMsg);
+                aTimer.AutoReset = false;
+                aTimer.Enabled = true;
+            }
         }
 
         private void AlertMsg(object sender, System.Timers.ElapsedEventArgs e)
         {
-            MessageBox.Show("Today's work time is {0}", Timeout);
+            new Form2(timeout).Show();
+        }
+
+        private DateTime AdjustTime()
+        {
+            return InternetEntity.getInternetTime();
         }
 
     }
