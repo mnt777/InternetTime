@@ -21,7 +21,7 @@ namespace WindowsFormsApplication1
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            this.Location = new Point(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width/2 + 179/2 +1,
+            this.Location = new Point(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width/2 + 179/2,
                           System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height - this.Height + 15);
             this.label1.Text = "Today's work time is " + timeout.ToString("HH:mm:ss") + ".";
         }

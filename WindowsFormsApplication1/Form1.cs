@@ -90,8 +90,8 @@ namespace WindowsFormsApplication1
         {
             timeout = loginTime.AddHours(9);
             var alertTime = loginTime.AddHours(8.5);
-            int spanmillseconds = (alertTime - loginTime).Milliseconds;
-            if (spanmillseconds == 0)
+            int spanmillseconds = int.Parse((alertTime - loginTime).TotalMilliseconds.ToString());
+            if (spanmillseconds <= 0)
             {
                 AlertMsg(null, null);
             }
