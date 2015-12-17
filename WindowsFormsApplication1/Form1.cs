@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -54,7 +55,7 @@ namespace WindowsFormsApplication1
                 var line = sr.ReadLine();
                 loginTime = DateTime.Parse(line);
             }
-            SetAlertTimer();
+            SetAlertTimer(currentTime);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -86,27 +87,35 @@ namespace WindowsFormsApplication1
             Close();
         }
 
-        private void SetAlertTimer()
+        private void SetAlertTimer(DateTime currentTime)
         {
             timeout = loginTime.AddHours(9);
-            var alertTime = loginTime.AddHours(8.5);
-            int spanmillseconds = int.Parse((alertTime - loginTime).TotalMilliseconds.ToString());
-            if (spanmillseconds <= 0)
+            var alertTime = loginTime.AddHours(8.5);            
+            var alertSpan = int.Parse((alertTime - currentTime).TotalMilliseconds.ToString());
+
+            if (alertSpan <= 0)
             {
                 AlertMsg(null, null);
             }
             else
             {
-                var aTimer = new System.Timers.Timer(spanmillseconds);
+                //solution 1, Timer
+                var aTimer = new System.Timers.Timer(alertSpan);                
                 aTimer.Elapsed += new System.Timers.ElapsedEventHandler(AlertMsg);
                 aTimer.AutoReset = false;
                 aTimer.Enabled = true;
+
+                //solution 2, Delegate
+                #region invoke solution 2
+                //HandlerSpanTime handler = new HandlerSpanTime(AlertSpanTime);                
+                //handler.BeginInvoke(alertSpan, new AsyncCallback(AlertMsg), null);                
+                #endregion
             }
         }
-
+        
         private void AlertMsg(object sender, System.Timers.ElapsedEventArgs e)
         {
-            new Form2(timeout).Show();
+            new Form2(timeout).ShowDialog();            
         }
 
         private DateTime AdjustTime()
@@ -114,5 +123,16 @@ namespace WindowsFormsApplication1
             return InternetEntity.getInternetTime();
         }
 
+        #region Solution 2 delegate
+        private delegate void HandlerSpanTime(int span);
+        private void AlertSpanTime(int span)
+        {
+            Thread.Sleep(span);
+        }
+        private void AlertMsg(IAsyncResult result)
+        {
+            new Form2(timeout).ShowDialog();
+        }
+        #endregion
     }
 }
